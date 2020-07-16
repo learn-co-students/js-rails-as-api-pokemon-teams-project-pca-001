@@ -4,7 +4,7 @@ class TrainersController < ApplicationController
     render json: trainers.to_json(
       only: [:id, :name],
       include: {
-        pokemons:  {
+        pokemons: {
           only: [:id, :nickname, :species]
         }
       }
