@@ -5,12 +5,19 @@ class PokemonsController < ApplicationController
     pokemon.species = Faker::Games::Pokemon.name
     if pokemon.save
       render json: pokemon.to_json(
-        except: [:created_at, :udpated_at]
+        except: [:created_at, :updated_at]
       )
-      # things went right
     else
-      # things didn't go correctly.
+      render json: { errors: "Too many pokemon" }
     end
+  end
+
+  def destroy
+    pokemon = Pokemon.find(params[:id])
+    pokemon.destroy
+    render json: pokemon.to_json(
+      except: [:created_at, :updated_at]
+    )
   end
 
 private
