@@ -6,16 +6,19 @@ function pokemonList(pokemons) {
   const list = document.createElement("ul")
   for (const pokemon of pokemons) {
     const listItem = document.createElement("li")
-    const pokemonTemplate = `
-      ${pokemon.nickname} (${pokemon.species})
-      <button class="release" data-pokemon-id="${pokemon.id}">
-        Release
-      </button>
-    `
-    listItem.innerHTML = pokemonTemplate
+    listItem.innerHTML = pokemonTemplate(pokemon)
     list.append(listItem)
   }
   return list
+}
+
+function pokemonTemplate(pokemon) {
+  return `
+    ${pokemon.nickname} (${pokemon.species})
+    <button class="release" data-pokemon-id="${pokemon.id}">
+      Release
+    </button>
+  `
 }
 
 function trainerCard(trainer) {
@@ -56,11 +59,21 @@ function addNewPokemon(trainerId) {
       "Content-Type": "application/json"
     },
     body: JSON.stringify({
-      trainer_id: trainerId
+      pokemon: {
+        trainer_id: trainerId
+      }
     })
   }).then(resp => resp.json()).then(function(pokemon) {
-    console.log(pokemon)
+    showPokemon(pokemon)
   })
+}
+
+function showPokemon(pokemon) {
+  const pokemonCard = document.getElementById(pokemon.trainer_id)
+  const pokemonList = pokemonCard.children[2]
+  const listItem = document.createElement("li")
+  listItem.innerHTML = pokemonTemplate(pokemon)
+  pokemonList.append(listItem)
 }
 
 fetch(TRAINERS_URL).then(resp => {

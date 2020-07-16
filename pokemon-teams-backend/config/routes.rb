@@ -1,4 +1,4 @@
 Rails.application.routes.draw do
-  resources :pokemons, only: []
-  resources :trainers, only: [:index, :create]
+  resources :pokemons, only: [:create]
+  resources :trainers, only: [:index]
 end
