@@ -8,8 +8,16 @@ class PokemonsController < ApplicationController
         except: [:created_at, :updated_at]
       )
     else
-      # things didn't go right. Maybe render json with an error
+      render json: { errors: "Too many pokemon" }
     end
+  end
+
+  def destroy
+    pokemon = Pokemon.find(params[:id])
+    pokemon.destroy
+    render json: pokemon.to_json(
+      except: [:created_at, :updated_at]
+    )
   end
 
 private
