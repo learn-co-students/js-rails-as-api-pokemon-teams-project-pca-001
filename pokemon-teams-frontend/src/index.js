@@ -5,11 +5,31 @@ const POKEMONS_URL = `${BASE_URL}/pokemons`
 function pokemonList(pokemons) {
   const list = document.createElement("ul")
   for (const pokemon of pokemons) {
-    const listItem = document.createElement("li")
-    listItem.innerHTML = pokemonTemplate(pokemon)
-    list.append(listItem)
+    appendPokemon(list, pokemon)
   }
   return list
+}
+
+function appendPokemon(list, pokemon) {
+  const listItem = document.createElement("li")
+  listItem.innerHTML = pokemonTemplate(pokemon)
+  list.append(listItem)
+  const releaseButton = listItem.querySelector(`button[data-pokemon-id='${pokemon.id}']`)
+  releaseButton.addEventListener("click", function(event) {
+    deletePokemon(pokemon)
+  })
+}
+
+function deletePokemon(pokemon) {
+  fetch(`${POKEMONS_URL}/${pokemon.id}`, {
+    method: "DELETE",
+    headers: {
+      "Content-Type": "application/json"
+    }
+  }).then(resp => resp.json()).then(function(pokemon) {
+    const releaseButton = document.querySelector(`button[data-pokemon-id='${pokemon.id}']`)
+    releaseButton.parentElement.remove()
+  })
 }
 
 function pokemonTemplate(pokemon) {
@@ -34,23 +54,25 @@ function trainerCard(trainer) {
   return trainerCard
 }
 
-
 const addTrainers = function(trainers) {
   const mainSection = document.querySelector("main")
-  // console.log(trainers)
-  // now we need to iterate through the trainers for trainer.
   for (const trainer of trainers) {
-    mainSection.appendChild(trainerCard(trainer))
+    mainSection.append(trainerCard(trainer))
   }
-  listenForNewPokemon
+  listenForNewPokemon()
 }
 
 function listenForNewPokemon() {
-  const pokemonButtons = document.querySelector(".add-pokemon-button")
+  const pokemonButtons = document.querySelectorAll(".add-pokemon-button")
   for (const button of pokemonButtons) {
     button.addEventListener("click", event => {
       const trainerId = button.getAttribute("data-trainer-id")
-      addNewPokemon(trainerId)
+      const pokemonCard = document.getElementById(trainerId)
+      const pokemonList = pokemonCard.children[2]
+      const numOfPokemons = pokemonList.children.length
+      if (numOfPokemons < 6) {
+        addNewPokemon(trainerId)
+      }
     })
   }
 }
@@ -60,26 +82,22 @@ function addNewPokemon(trainerId) {
     method: "POST",
     headers: {
       "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        pokemon: {
+    },
+    body: JSON.stringify({
+      pokemon: {
         trainer_id: trainerId
-        }
-      })
-    }).then(resp => resp.json()).then(function(pokemon) {
-      showPokemon(pokemon)
+      }
     })
+  }).then(resp => resp.json()).then(function(pokemon) {
+    showPokemon(pokemon)
+  })
 }
 
 function showPokemon(pokemon) {
-  const pokemonCard = document.getElementById(pokemon.trainer.id)
-  // console.log(pokemonCard.children)
+  const pokemonCard = document.getElementById(pokemon.trainer_id)
   const pokemonList = pokemonCard.children[2]
-  const listItem = document.createElement("li")
-    listItem.innerHTML = pokemonTemplate(pokemon)
-    pokemonList.append(listItem)
+  appendPokemon(pokemonList, pokemon)
 }
-
 
 fetch(TRAINERS_URL).then(resp => {
   return resp.json()
